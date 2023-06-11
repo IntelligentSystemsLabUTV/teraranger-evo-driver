@@ -1,0 +1,11 @@
+/teraranger:
+  ros__parameters:
+    altitude_topic: /altitude
+    cov_bad: 10.0
+    cov_good: 0.001
+    delta_max: 0.3
+    port: /dev/i2c-1
+    pose_topic: /pose
+    publish_range: true
+    range_topic: /range
+    timer_frequency: 100
