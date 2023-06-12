@@ -105,7 +105,6 @@ class TerarangerNode : public DUANode::NodeBase
     void init_parameters();
     void init_publishers();
     void init_subscribers();
-    void init_sync_primitives();
     void init_tf_listeners();
     void init_timers();
 
