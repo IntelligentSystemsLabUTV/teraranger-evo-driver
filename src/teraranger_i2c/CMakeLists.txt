@@ -22,6 +22,7 @@ find_package(ament_cmake REQUIRED)
 find_package(builtin_interfaces REQUIRED)
 find_package(dua_app_management REQUIRED)
 find_package(dua_node REQUIRED)
+find_package(dua_qos REQUIRED)
 find_package(Eigen3 3.4 REQUIRED NO_MODULE)
 find_package(geometry_msgs REQUIRED)
 find_package(params_manager REQUIRED)
@@ -52,6 +53,7 @@ ament_target_dependencies(
   teraranger
   dua_app_management
   dua_node
+  dua_qos
   Eigen3
   geometry_msgs
   params_manager

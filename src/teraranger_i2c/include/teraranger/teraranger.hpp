@@ -39,6 +39,7 @@
 #include <mutex>
 
 #include <dua_node/dua_node.hpp>
+#include <dua_qos/dua_qos.hpp>
 
 #include <eigen3/Eigen/Geometry>
 #include <eigen3/unsupported/Eigen/EulerAngles>

@@ -111,10 +111,14 @@ void TerarangerNode::init_publishers()
 {
   // Range topic
   if (publish_range)
-    range_pub_ = this->create_publisher<Range>(range_topic, 1);
+    range_pub_ = this->create_publisher<Range>(
+      range_topic,
+      DUAQoS::get_datum_qos());
 
   // Altitude topic
-  altitude_pub_ = this->create_publisher<PoseWithCovarianceStamped>(altitude_topic, 1);
+  altitude_pub_ = this->create_publisher<PoseWithCovarianceStamped>(
+    altitude_topic,
+    DUAQoS::get_datum_qos());
 }
 
 /**
@@ -127,7 +131,7 @@ void TerarangerNode::init_subscribers()
   pose_sub_opt.callback_group = pose_clbk_group_;
   pose_sub_ = this->create_subscription<PoseStamped>(
     pose_topic,
-    1,
+    DUAQoS::get_datum_qos(),
     std::bind(
       &TerarangerNode::pose_clbk,
       this,
