@@ -108,7 +108,18 @@ class TerarangerNode : public DUANode::NodeBase
     void init_tf_listeners();
     void init_timers();
 
-    void timer_clbk();
+    /* Timers callback groups */
+    rclcpp::CallbackGroup::SharedPtr laser_timer_cgroup;
+    rclcpp::CallbackGroup::SharedPtr tf_timer_cgroup;
+
+    /* Timers */
+    rclcpp::TimerBase::SharedPtr laser_timer;
+    rclcpp::TimerBase::SharedPtr tf_timer;
+
+    /* Timer callbacks */
+    void laser_timer_callback();
+    void tf_timer_callback();
+
 
     rclcpp::TimerBase::SharedPtr timer_;
 
@@ -130,27 +141,16 @@ class TerarangerNode : public DUANode::NodeBase
     double cov_good;
     double cov_bad;
     double delta_max;
+    std::string link_namespace;
     std::string port;
     std::string pose_topic;
     bool publish_range;
     std::string range_topic;
-    int timer_frequency;
-
-    /* Node parameters validators. */
-    bool validate_altitude_topic(const rclcpp::Parameter & p);
-    bool validate_cov_good(const rclcpp::Parameter & p);
-    bool validate_cov_bad(const rclcpp::Parameter & p);
-    bool validate_delta_max(const rclcpp::Parameter & p);
-    bool validate_port(const rclcpp::Parameter & p);
-    bool validate_pose_topic(const rclcpp::Parameter & p);
-    bool validate_publish_range(const rclcpp::Parameter & p);
-    bool validate_range_topic(const rclcpp::Parameter & p);
-    bool validate_timer_frequency(const rclcpp::Parameter & p);
+    int64_t timer_frequency;
 
     /* Utility routines */
     int begin(const char *port);
     uint8_t crc8(uint8_t *p, uint8_t len);
-    void create_spinlock(pthread_spinlock_t *lock);
     void end();
     void get_isometry3d(TransformStamped& tf_msg, Eigen::Isometry3d& iso);
     int sread(unsigned char *buff, ssize_t size);
@@ -158,6 +158,7 @@ class TerarangerNode : public DUANode::NodeBase
 
     /* Synchronization variables */
     std::mutex pose_mtx;
+    std::mutex tf_lock_;
 
     /* Variables */
     int fd;
@@ -167,16 +168,15 @@ class TerarangerNode : public DUANode::NodeBase
     double field_of_view = 0.0349066;
     double max_range = 15.0;
     double min_range = 0.5;
-    std::string frame_id = "laser_frame";
     std::array<double, 36> cov_vec;
 
     PoseStamped::ConstSharedPtr drone_pose;
 
     /* TF */
-    std::shared_ptr<tf2_ros::TransformListener> tf_listener_{nullptr};
-    std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
-    TransformStamped tf_map_odom, tf_laser_fmu;
-    Eigen::Isometry3d iso_map_odom, iso_laser_fmu;
+    std::string map_frame, odom_frame, laser_frame, fmu_frame;
+    std::shared_ptr<tf2_ros::Buffer> tf_buffer;
+    std::shared_ptr<tf2_ros::TransformListener> tf_listener;
+    TransformStamped map_to_odom{}, laser_to_fmu{};
 };
 
 } // namespace Teraranger

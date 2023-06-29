@@ -50,6 +50,9 @@ TerarangerNode::TerarangerNode(const rclcpp::NodeOptions &node_options)
   // Initialize topic publishers
   init_publishers();
 
+  // Initialize TF listener
+  init_tf_listeners();
+
   // Initialize I²C communication
   init_i2c();
 
@@ -85,7 +88,7 @@ void TerarangerNode::init_i2c()
   range_msg.field_of_view = field_of_view;
   range_msg.max_range = max_range;
   range_msg.min_range = min_range;
-  range_msg.header.frame_id = frame_id;
+  range_msg.header.frame_id = map_frame;
   range_msg.radiation_type = Range::INFRARED;
 
   // If handshake ends successfully, start reader thread and update timer.
@@ -137,36 +140,41 @@ void TerarangerNode::init_subscribers()
  */
 void TerarangerNode::init_timers()
 {
-  timer_ = this->create_wall_timer(
+  laser_timer = this->create_wall_timer(
     std::chrono::duration<double>(1.0/timer_frequency),
-    std::bind(&TerarangerNode::timer_clbk, this));
+    std::bind(
+      &TerarangerNode::laser_timer_callback,
+      this),
+    laser_timer_cgroup);
 }
 
 /**
- * @brief Routine to initialize TF listeners.
+ * @brief Routine to initialize TF listeners and their timer.
  */
 void TerarangerNode::init_tf_listeners()
 {
-  tf_buffer_ = std::make_unique<tf2_ros::Buffer>(this->get_clock());
-  tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
+  // Initialize TF buffers and listeners
+  tf_buffer = std::make_shared<tf2_ros::Buffer>(this->get_clock());
+  tf_listener = std::make_shared<tf2_ros::TransformListener>(*tf_buffer);
 
-  while (1)
-  {
-    try {
-      tf_map_odom = tf_buffer_->lookupTransform("/map", "/stanis/odom", tf2::TimePointZero);
-      tf_laser_fmu = tf_buffer_->lookupTransform("/stanis/laser_link", "/stanis/fmu_link", tf2::TimePointZero);
-      break;
-    } catch (const tf2::TransformException & ex) {
-      RCLCPP_INFO(this->get_logger(), "Are TFs being published? Trying again in 3 seconds...");
-      rclcpp::sleep_for(3s);
-    }
-  }
+  // Initialize local data
+  map_frame = "map";
+  odom_frame = link_namespace + "odom";
+  map_to_odom.header.set__frame_id(map_frame);
+  map_to_odom.set__child_frame_id(odom_frame);
 
-  // Camera to base transformation
-  get_isometry3d(tf_map_odom, iso_map_odom);
+  laser_frame = link_namespace + "laser_link";
+  fmu_frame = link_namespace + "fmu_link";
+  map_to_odom.header.set__frame_id(map_frame);
+  map_to_odom.set__child_frame_id(odom_frame);
 
-  // Laser to FMU transformation
-  get_isometry3d(tf_laser_fmu, iso_laser_fmu);
+  // Initialize TF timer
+  tf_timer = this->create_wall_timer(
+    std::chrono::seconds(1),
+    std::bind(
+      &TerarangerNode::tf_timer_callback,
+      this),
+    tf_timer_cgroup);
 }
 
 } // namespace Teraranger

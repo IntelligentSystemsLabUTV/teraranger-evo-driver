@@ -39,6 +39,7 @@ generate_init_parameters(
 add_executable(teraranger
   src/teraranger/teraranger.cpp
   src/teraranger/teraranger_subscriptions.cpp
+  src/teraranger/teraranger_timers.cpp
   src/teraranger/teraranger_utils.cpp
   init_parameters.cpp
   src/teraranger_app.cpp)

@@ -9,7 +9,7 @@ params:
     description: "Topic name for the altitude message."
     constraints: "Cannot be changed."
     read_only: true
-    validator: validate_altitude_topic
+    var_name: altitude_topic
 
   cov_good:
     type: double
@@ -20,7 +20,7 @@ params:
     description: "Covariance value when laser is measuring."
     constraints: "Cannot be changed."
     read_only: true
-    validator: validate_cov_good
+    var_name: cov_good
 
   cov_bad:
     type: double
@@ -31,7 +31,7 @@ params:
     description: "Covariance value when laser is not measuring."
     constraints: "Cannot be changed."
     read_only: true
-    validator: validate_cov_bad
+    var_name: cov_bad
 
   delta_max:
     type: double
@@ -42,7 +42,15 @@ params:
     description: "Maximum difference between reference and current height."
     constraints: "Can be changed."
     read_only: false
-    validator: validate_delta_max
+    var_name: delta_max
+
+  link_namespace:
+    type: string
+    default_value: drone/
+    description: "Drone link namespace, including the trailing slash"
+    constraints: "Cannot be changed"
+    read_only: true
+    var_name: link_namespace
 
   port:
     type: string
@@ -50,7 +58,7 @@ params:
     description: "I²C port."
     constraints: "Cannot be changed."
     read_only: true
-    validator: validate_port
+    var_name: port
 
   pose_topic:
     type: string
@@ -58,7 +66,7 @@ params:
     description: "Topic name for drone pose."
     constraints: "Cannot be changed."
     read_only: true
-    validator: validate_pose_topic
+    var_name: pose_topic
 
   publish_range:
     type: bool
@@ -66,7 +74,7 @@ params:
     description: "Flag to publish Range or PoseWithCovarianceStamped msg."
     constraints: "Cannot be changed."
     read_only: true
-    validator: validate_publish_range
+    var_name: publish_range
 
   range_topic:
     type: string
@@ -74,7 +82,7 @@ params:
     description: "Topic name for Range msg publication."
     constraints: "Cannot be changed."
     read_only: true
-    validator: validate_range_topic
+    var_name: range_topic
 
   timer_frequency:
     type: integer
@@ -85,4 +93,4 @@ params:
     description: "Timer frequency."
     constraints: "Cannot be changed."
     read_only: true
-    validator: validate_timer_frequency
+    var_name: timer_frequency
