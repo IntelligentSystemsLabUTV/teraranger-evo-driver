@@ -171,7 +171,7 @@ class TerarangerNode : public DUANode::NodeBase
     double min_range = 0.5;
     std::array<double, 36> cov_vec;
 
-    PoseStamped::ConstSharedPtr drone_pose;
+    PoseStamped drone_pose{};
 
     /* TF */
     std::string map_frame, odom_frame, laser_frame, fmu_frame;

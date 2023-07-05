@@ -37,7 +37,7 @@ namespace Teraranger
 void TerarangerNode::pose_clbk(const PoseStamped::ConstSharedPtr msg)
 {
   pose_mtx.lock();
-  drone_pose = msg;
+  drone_pose = *msg;
   pose_mtx.unlock();
 }
 
