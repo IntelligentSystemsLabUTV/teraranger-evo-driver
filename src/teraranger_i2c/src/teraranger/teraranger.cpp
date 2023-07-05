@@ -182,3 +182,6 @@ void TerarangerNode::init_tf_listeners()
 }
 
 } // namespace Teraranger
+
+#include <rclcpp_components/register_node_macro.hpp>
+RCLCPP_COMPONENTS_REGISTER_NODE(Teraranger::TerarangerNode)

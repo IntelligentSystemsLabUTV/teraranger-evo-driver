@@ -27,6 +27,7 @@ find_package(Eigen3 3.4 REQUIRED NO_MODULE)
 find_package(geometry_msgs REQUIRED)
 find_package(params_manager REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_components REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
@@ -36,40 +37,60 @@ generate_init_parameters(
   YAML_FILE "${CMAKE_CURRENT_SOURCE_DIR}/src/teraranger/params.yaml"
   OUT_FILE "init_parameters.cpp")
 
+# Configure Flight Control node source files
+file(GLOB TERARANGER_NODE_SRCS
+  RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
+  "src/teraranger/*.cpp")
+list(APPEND TERARANGER_NODE_SRCS init_parameters.cpp)
 
-add_executable(teraranger
-  src/teraranger/teraranger.cpp
-  src/teraranger/teraranger_subscriptions.cpp
-  src/teraranger/teraranger_timers.cpp
-  src/teraranger/teraranger_utils.cpp
-  init_parameters.cpp
-  src/teraranger_app.cpp)
-
+# Teraranger node
+add_library(teraranger SHARED ${TERARANGER_NODE_SRCS})
+target_compile_definitions(teraranger PRIVATE COMPOSITION_BUILDING_DLL)
 target_include_directories(teraranger PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
-
+  target_link_libraries(teraranger
+  Eigen3::Eigen)
 ament_target_dependencies(
   teraranger
   dua_app_management
   dua_node
   dua_qos
-  Eigen3
   geometry_msgs
   params_manager
   rclcpp
+  rclcpp_components
   sensor_msgs
   tf2
   tf2_ros)
+rclcpp_components_register_nodes(teraranger "Teraranger::TerarangerNode")
 
+# Teraranger standalone application
+add_executable(teraranger_app
+  src/teraranger_app.cpp)
+target_include_directories(teraranger_app PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+  target_link_libraries(teraranger_app teraranger)
+ament_target_dependencies(teraranger_app
+  dua_app_management
+  rclcpp)
+
+# Install Teraranger component
 install(TARGETS teraranger
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin)
+
+# Install Teraranger app
+install(TARGETS teraranger_app
   DESTINATION lib/${PROJECT_NAME})
 
-# Config files
+# Install Config files
 install(DIRECTORY config
   DESTINATION share/${PROJECT_NAME})
 
-# Launch files
+# Install Launch files
 install(DIRECTORY launch
   DESTINATION share/${PROJECT_NAME})
 
@@ -83,5 +104,8 @@ if(BUILD_TESTING)
   #set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
+
+# Make sure that the library path is exported even if the library itself is not
+ament_environment_hooks("${ament_cmake_package_templates_ENVIRONMENT_HOOK_LIBRARY_PATH}")
 
 ament_package()
