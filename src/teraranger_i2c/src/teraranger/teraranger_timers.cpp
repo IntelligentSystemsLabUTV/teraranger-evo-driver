@@ -79,12 +79,6 @@ void TerarangerNode::tf_timer_callback()
  */
 void TerarangerNode::laser_timer_callback()
 {
-  std::cout << "11111111111111111111" << std::endl;
-  std::cout << "11111111111111111111" << std::endl;
-  std::cout << "11111111111111111111" << std::endl;
-  std::cout << "11111111111111111111" << std::endl;
-  std::cout << "11111111111111111111" << std::endl;
-
   // Send trigger and receive data
   uint8_t buf[1] = {0x00};
   if (this->swrite(buf, 1) < 0)

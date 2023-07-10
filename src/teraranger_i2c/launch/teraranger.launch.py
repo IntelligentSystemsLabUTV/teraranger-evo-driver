@@ -24,7 +24,7 @@ def generate_launch_description():
     # Create node launch description
     node = Node(
         package='teraranger_i2c',
-        executable='teraranger',
+        executable='teraranger_app',
         exec_name='teraranger_app',
         shell=True,
         emulate_tty=True,
