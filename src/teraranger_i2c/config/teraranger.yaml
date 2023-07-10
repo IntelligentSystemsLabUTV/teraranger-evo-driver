@@ -5,7 +5,7 @@
     cov_good: 0.001
     delta_max: 0.3
     link_namespace: seppia/
-    port: /dev/i2c-1
+    port: /dev/i2c-8
     pose_topic: /pose
     publish_range: true
     range_topic: /range
