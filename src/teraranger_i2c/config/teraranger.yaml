@@ -6,7 +6,7 @@
     delta_max: 0.3
     link_namespace: stanis/
     port: /dev/i2c-8
-    pose_topic: /stanis/flight_stack/flight_control/ekf2_odometry
+    pose_topic: /stanis/flight_stack/flight_control/ekf2_pose
     publish_range: true
     range_topic: /range
     timer_frequency: 100
