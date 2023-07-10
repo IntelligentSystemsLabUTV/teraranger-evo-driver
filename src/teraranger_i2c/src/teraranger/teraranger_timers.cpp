@@ -35,8 +35,8 @@ namespace Teraranger
  */
 void TerarangerNode::tf_timer_callback()
 {
-  TransformStamped map_to_odom_{};
-  TransformStamped laser_to_fmu_{};
+  // TransformStamped map_to_odom_{};
+  // TransformStamped laser_to_fmu_{};
 
   // Start listening
   // map -> odom
