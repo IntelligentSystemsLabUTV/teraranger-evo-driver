@@ -35,43 +35,43 @@ namespace Teraranger
  */
 void TerarangerNode::tf_timer_callback()
 {
-  // TransformStamped map_to_odom_{};
-  // TransformStamped laser_to_fmu_{};
+  TransformStamped map_to_odom_{};
+  TransformStamped laser_to_fmu_{};
 
-  // Start listening
-  // map -> odom
-  // try {
-  //   map_to_odom_ = tf_buffer->lookupTransform(
-  //     map_frame,
-  //     odom_frame,
-  //     tf2::TimePointZero,
-  //     tf2::durationFromSec(1.0));
+  Start listening
+  map -> odom
+  try {
+    map_to_odom_ = tf_buffer->lookupTransform(
+      map_frame,
+      odom_frame,
+      tf2::TimePointZero,
+      tf2::durationFromSec(1.0));
 
-  //   tf_lock_.lock();
-  //   map_to_odom = map_to_odom;
-  //   tf_lock_.unlock();
-  // } catch (const tf2::TimeoutException & e) {
-  //   NOOP;
-  // } catch (const tf2::TransformException & e) {
-  //   RCLCPP_INFO(this->get_logger(), "TF exception: %s", e.what());
-  // }
+    tf_lock_.lock();
+    map_to_odom = map_to_odom;
+    tf_lock_.unlock();
+  } catch (const tf2::TimeoutException & e) {
+    NOOP;
+  } catch (const tf2::TransformException & e) {
+    RCLCPP_INFO(this->get_logger(), "TF exception: %s", e.what());
+  }
 
-  // laser -> fmu
-  // try {
-  //   laser_to_fmu_ = tf_buffer->lookupTransform(
-  //     laser_frame,
-  //     fmu_frame,
-  //     tf2::TimePointZero,
-  //     tf2::durationFromSec(1.0));
+  laser -> fmu
+  try {
+    laser_to_fmu_ = tf_buffer->lookupTransform(
+      laser_frame,
+      fmu_frame,
+      tf2::TimePointZero,
+      tf2::durationFromSec(1.0));
 
-  //   tf_lock_.lock();
-  //   laser_to_fmu = laser_to_fmu_;
-  //   tf_lock_.unlock();
-  // } catch (const tf2::TimeoutException & e) {
-  //   NOOP;
-  // } catch (const tf2::TransformException & e) {
-  //   RCLCPP_INFO(this->get_logger(), "TF exception: %s", e.what());
-  // }
+    tf_lock_.lock();
+    laser_to_fmu = laser_to_fmu_;
+    tf_lock_.unlock();
+  } catch (const tf2::TimeoutException & e) {
+    NOOP;
+  } catch (const tf2::TransformException & e) {
+    RCLCPP_INFO(this->get_logger(), "TF exception: %s", e.what());
+  }
 }
 
 /**
