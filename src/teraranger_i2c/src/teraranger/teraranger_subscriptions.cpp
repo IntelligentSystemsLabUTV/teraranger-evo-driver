@@ -30,7 +30,7 @@ namespace Teraranger
 {
 
 /**
- * @brief Logs drone's local pose.
+ * @brief Logs drone's pose.
  *
  * @param msg Pose message to parse.
  */
