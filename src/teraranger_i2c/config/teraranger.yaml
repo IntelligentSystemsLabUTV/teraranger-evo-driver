@@ -9,4 +9,4 @@
     pose_topic: /stanis/flight_stack/flight_control/ekf2_pose
     publish_range: true
     range_topic: /range
-    timer_frequency: 100
+    timer_frequency: 10

@@ -134,9 +134,9 @@ void TerarangerNode::laser_timer_callback()
 
     double z = last_drone_pose.pose.position.z;
 
-    std::cout << "roll: " << roll << std::endl;
-    std::cout << "pitch: " << pitch << std::endl;
-    std::cout << "z: " << z << std::endl;
+    // std::cout << "roll: " << roll << std::endl;
+    // std::cout << "pitch: " << pitch << std::endl;
+    // std::cout << "z: " << z << std::endl;
 
     TransformStamped map_to_odom_{}, laser_to_fmu_{};
     tf_lock_.lock();
@@ -144,8 +144,8 @@ void TerarangerNode::laser_timer_callback()
     map_to_odom_ = map_to_odom;
     tf_lock_.unlock();
 
-    std::cout << "map_to_odom: " << map_to_odom_.transform.translation.x << " " << map_to_odom_.transform.translation.y << " " << map_to_odom_.transform.translation.z << std::endl;
-    std::cout << "laser_to_fmu: " << laser_to_fmu_.transform.translation.x << " " << laser_to_fmu_.transform.translation.y << " " << laser_to_fmu_.transform.translation.z << std::endl;
+    // std::cout << "map_to_odom: " << map_to_odom_.transform.translation.x << " " << map_to_odom_.transform.translation.y << " " << map_to_odom_.transform.translation.z << std::endl;
+    // std::cout << "laser_to_fmu: " << laser_to_fmu_.transform.translation.x << " " << laser_to_fmu_.transform.translation.y << " " << laser_to_fmu_.transform.translation.z << std::endl;
 
     double altitude_tilted_map = final_range +
                                  fabs(laser_to_fmu_.transform.translation.z) +                     // z offset between laser and fmu
