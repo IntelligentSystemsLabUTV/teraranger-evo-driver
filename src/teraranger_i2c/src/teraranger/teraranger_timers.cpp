@@ -134,6 +134,10 @@ void TerarangerNode::laser_timer_callback()
 
     double z = last_drone_pose.pose.position.z;
 
+    std::cout << "roll: " << roll << std::endl;
+    std::cout << "pitch: " << pitch << std::endl;
+    std::cout << "z: " << z << std::endl;
+
     TransformStamped map_to_odom_{}, laser_to_fmu_{};
     tf_lock_.lock();
     laser_to_fmu_ = laser_to_fmu;
