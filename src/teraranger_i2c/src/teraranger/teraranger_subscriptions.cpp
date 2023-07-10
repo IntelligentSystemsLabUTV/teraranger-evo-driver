@@ -36,6 +36,7 @@ namespace Teraranger
  */
 void TerarangerNode::pose_clbk(const EulerPoseStamped::ConstSharedPtr msg)
 {
+  std::cout << "Received pose: " << msg->pose.position.x << " " << msg->pose.position.y << " " << msg->pose.position.z << std::endl;
   pose_mtx.lock();
   drone_pose = *msg;
   pose_mtx.unlock();
