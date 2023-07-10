@@ -124,24 +124,6 @@ int TerarangerNode::swrite(unsigned char *buff, ssize_t size)
 }
 
 /**
- * @brief Routine to transform TransformStamped msg to Isometry3d structure.
- *
- * @param tf_msg PoseStamped message to be transformed.
- * @param iso Output Isometry3d.
- */
-// void TerarangerNode::get_isometry3d(TransformStamped& tf_msg, Eigen::Isometry3d& iso)
-// {
-//   iso = Eigen::Isometry3d::Identity();
-//   iso.rotate(Eigen::Quaterniond(tf_msg.transform.rotation.w,
-//                                 tf_msg.transform.rotation.x,
-//                                 tf_msg.transform.rotation.y,
-//                                 tf_msg.transform.rotation.z));
-//   iso.pretranslate(Eigen::Vector3d(tf_msg.transform.translation.x,
-//                                     tf_msg.transform.translation.y,
-//                                     tf_msg.transform.translation.z));
-// }
-
-/**
  * @brief Computes current message CRC
  */
 uint8_t TerarangerNode::crc8(uint8_t *p, uint8_t len)

@@ -124,52 +124,48 @@ void TerarangerNode::laser_timer_callback()
       range_pub_->publish(range_msg);
     }
 
-    // PoseStamped last_drone_pose{};
-    // pose_mtx.lock();
-    // last_drone_pose = drone_pose;
-    // pose_mtx.unlock();
+    EulerPoseStamped last_drone_pose{};
+    pose_mtx.lock();
+    last_drone_pose = drone_pose;
+    pose_mtx.unlock();
 
-    // Eigen::Quaterniond q_drone = Eigen::Quaterniond(last_drone_pose.pose.orientation.w,
-    //                                                 last_drone_pose.pose.orientation.x,
-    //                                                 last_drone_pose.pose.orientation.y,
-    //                                                 last_drone_pose.pose.orientation.z);
-    // // roll = rpy[2], pitch = rpy[1], yaw = rpy[0]
-    // Eigen::Vector3d rpy = q_drone.toRotationMatrix().eulerAngles(2, 1, 0);
+    double roll = last_drone_pose.roll;
+    double pitch = last_drone_pose.pitch;
 
-    // Eigen::Vector3d p_drone = Eigen::Vector3d(last_drone_pose.pose.position.x,
-    //                                           last_drone_pose.pose.position.y,
-    //                                           last_drone_pose.pose.position.z);
+    Eigen::Vector3d p_drone = Eigen::Vector3d(last_drone_pose.pose.position.x,
+                                              last_drone_pose.pose.position.y,
+                                              last_drone_pose.pose.position.z);
 
-    // TransformStamped map_to_odom_{}, laser_to_fmu_{};
-    // tf_lock_.lock();
-    // laser_to_fmu_ = laser_to_fmu;
-    // map_to_odom_ = map_to_odom;
-    // tf_lock_.unlock();
+    TransformStamped map_to_odom_{}, laser_to_fmu_{};
+    tf_lock_.lock();
+    laser_to_fmu_ = laser_to_fmu;
+    map_to_odom_ = map_to_odom;
+    tf_lock_.unlock();
 
-    // double altitude_tilted_map = final_range +
-    //                              fabs(laser_to_fmu_.transform.translation.z) +                     // z offset between laser and fmu
-    //                              fabs(laser_to_fmu_.transform.translation.x) * std::tan(rpy[1]);   // distance from the ground due to pitch
-    // double altitude_map = altitude_tilted_map * std::tan(rpy[2]) * std::tan(rpy[1]);
-    // double altitude_odom = altitude_map - fabs(map_to_odom_.transform.translation.z);
+    double altitude_tilted_map = final_range +
+                                 fabs(laser_to_fmu_.transform.translation.z) +                     // z offset between laser and fmu
+                                 fabs(laser_to_fmu_.transform.translation.x) * std::tan(pitch);   // distance from the ground due to pitch
+    double altitude_map = altitude_tilted_map * std::tan(roll) * std::tan(pitch);
+    double altitude_odom = altitude_map - fabs(map_to_odom_.transform.translation.z);
 
-    // PoseWithCovarianceStamped altitude_msg;
+    PoseWithCovarianceStamped altitude_msg;
 
-    // // Header
-    // altitude_msg.header.set__stamp(this->get_clock()->now());
-    // altitude_msg.header.set__frame_id(odom_frame);
+    // Header
+    altitude_msg.header.set__stamp(this->get_clock()->now());
+    altitude_msg.header.set__frame_id(odom_frame);
 
-    // // Position
-    // altitude_msg.pose.pose.position.set__z(altitude_odom);
+    // Position
+    altitude_msg.pose.pose.position.set__z(altitude_odom);
 
-    // // Covariances
-    // if (fabs(altitude_odom - p_drone.z()) < delta_max)
-    //   cov_vec[14] = cov_good;
-    // else
-    //   cov_vec[14] = cov_bad;
+    // Covariances
+    if (fabs(altitude_odom - p_drone.z()) < delta_max)
+      cov_vec[14] = cov_good;
+    else
+      cov_vec[14] = cov_bad;
 
-    // altitude_msg.pose.set__covariance(cov_vec);
+    altitude_msg.pose.set__covariance(cov_vec);
 
-    // altitude_pub_->publish(altitude_msg);
+    altitude_pub_->publish(altitude_msg);
   }
   else
   {

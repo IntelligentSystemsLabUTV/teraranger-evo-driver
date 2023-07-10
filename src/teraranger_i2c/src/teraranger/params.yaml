@@ -62,7 +62,7 @@ params:
 
   pose_topic:
     type: string
-    default_value: /drone_pose
+    default_value: /stanis/flight_stack/ekf2_pose
     description: "Topic name for drone pose."
     constraints: "Cannot be changed."
     read_only: true

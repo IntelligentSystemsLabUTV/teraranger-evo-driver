@@ -129,7 +129,7 @@ void TerarangerNode::init_subscribers()
   // Pose
   auto pose_sub_opt = rclcpp::SubscriptionOptions();
   pose_sub_opt.callback_group = pose_clbk_group_;
-  pose_sub_ = this->create_subscription<PoseStamped>(
+  pose_sub_ = this->create_subscription<EulerPoseStamped>(
     pose_topic,
     DUAQoS::get_datum_qos(),
     std::bind(

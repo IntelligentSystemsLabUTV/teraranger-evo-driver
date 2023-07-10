@@ -34,7 +34,7 @@ namespace Teraranger
  *
  * @param msg Pose message to parse.
  */
-void TerarangerNode::pose_clbk(const PoseStamped::ConstSharedPtr msg)
+void TerarangerNode::pose_clbk(const EulerPoseStamped::ConstSharedPtr msg)
 {
   pose_mtx.lock();
   drone_pose = *msg;
