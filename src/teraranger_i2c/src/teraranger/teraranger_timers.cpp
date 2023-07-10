@@ -132,9 +132,7 @@ void TerarangerNode::laser_timer_callback()
     double roll = last_drone_pose.roll;
     double pitch = last_drone_pose.pitch;
 
-    Eigen::Vector3d p_drone = Eigen::Vector3d(last_drone_pose.pose.position.x,
-                                              last_drone_pose.pose.position.y,
-                                              last_drone_pose.pose.position.z);
+    double z = last_drone_pose.pose.position.z;
 
     TransformStamped map_to_odom_{}, laser_to_fmu_{};
     tf_lock_.lock();
@@ -142,11 +140,18 @@ void TerarangerNode::laser_timer_callback()
     map_to_odom_ = map_to_odom;
     tf_lock_.unlock();
 
+    std::cout << "map_to_odom: " << map_to_odom_.transform.translation.x << " " << map_to_odom_.transform.translation.y << " " << map_to_odom_.transform.translation.z << std::endl;
+    std::cout << "laser_to_fmu: " << laser_to_fmu_.transform.translation.x << " " << laser_to_fmu_.transform.translation.y << " " << laser_to_fmu_.transform.translation.z << std::endl;
+
     double altitude_tilted_map = final_range +
                                  fabs(laser_to_fmu_.transform.translation.z) +                     // z offset between laser and fmu
                                  fabs(laser_to_fmu_.transform.translation.x) * std::tan(pitch);   // distance from the ground due to pitch
     double altitude_map = altitude_tilted_map * std::tan(roll) * std::tan(pitch);
     double altitude_odom = altitude_map - fabs(map_to_odom_.transform.translation.z);
+
+    std::cout << "altitude_tilted_map: " << altitude_tilted_map << std::endl;
+    std::cout << "altitude_map: " << altitude_map << std::endl;
+    std::cout << "altitude_odom: " << altitude_odom << std::endl;
 
     PoseWithCovarianceStamped altitude_msg;
 
@@ -158,7 +163,7 @@ void TerarangerNode::laser_timer_callback()
     altitude_msg.pose.pose.position.set__z(altitude_odom);
 
     // Covariances
-    if (fabs(altitude_odom - p_drone.z()) < delta_max)
+    if (fabs(altitude_odom - z) < delta_max)
       cov_vec[14] = cov_good;
     else
       cov_vec[14] = cov_bad;
