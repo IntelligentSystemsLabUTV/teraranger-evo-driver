@@ -38,8 +38,8 @@ void TerarangerNode::tf_timer_callback()
   TransformStamped map_to_odom_{};
   TransformStamped laser_to_fmu_{};
 
-  Start listening
-  map -> odom
+  // Start listening
+  // map -> odom
   try {
     map_to_odom_ = tf_buffer->lookupTransform(
       map_frame,
@@ -56,7 +56,7 @@ void TerarangerNode::tf_timer_callback()
     RCLCPP_INFO(this->get_logger(), "TF exception: %s", e.what());
   }
 
-  laser -> fmu
+  // laser -> fmu
   try {
     laser_to_fmu_ = tf_buffer->lookupTransform(
       laser_frame,
