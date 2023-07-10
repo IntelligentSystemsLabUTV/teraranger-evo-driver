@@ -35,6 +35,12 @@ namespace Teraranger
  */
 void TerarangerNode::tf_timer_callback()
 {
+  std::cout << "11111111111111111111" << std::endl;
+  std::cout << "11111111111111111111" << std::endl;
+  std::cout << "11111111111111111111" << std::endl;
+  std::cout << "11111111111111111111" << std::endl;
+  std::cout << "11111111111111111111" << std::endl;
+
   TransformStamped map_to_odom_{};
   TransformStamped laser_to_fmu_{};
 
