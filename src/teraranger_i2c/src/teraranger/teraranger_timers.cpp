@@ -153,9 +153,9 @@ void TerarangerNode::laser_timer_callback()
     double altitude_map = altitude_tilted_map * std::tan(roll) * std::tan(pitch);
     double altitude_odom = altitude_map - fabs(map_to_odom_.transform.translation.z);
 
-    std::cout << "altitude_tilted_map: " << altitude_tilted_map << std::endl;
-    std::cout << "altitude_map: " << altitude_map << std::endl;
-    std::cout << "altitude_odom: " << altitude_odom << std::endl;
+    // std::cout << "altitude_tilted_map: " << altitude_tilted_map << std::endl;
+    // std::cout << "altitude_map: " << altitude_map << std::endl;
+    // std::cout << "altitude_odom: " << altitude_odom << std::endl;
 
     PoseWithCovarianceStamped altitude_msg;
 

@@ -102,6 +102,9 @@ void TerarangerNode::init_cgroups()
 {
   // Topic subscriptions
   pose_clbk_group_ = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+
+  // Timers
+  tf_timer_cgroup = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
 }
 
 /**
