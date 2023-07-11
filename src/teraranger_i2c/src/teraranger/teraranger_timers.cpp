@@ -147,10 +147,13 @@ void TerarangerNode::laser_timer_callback()
     // std::cout << "map_to_odom: " << map_to_odom_.transform.translation.x << " " << map_to_odom_.transform.translation.y << " " << map_to_odom_.transform.translation.z << std::endl;
     // std::cout << "laser_to_fmu: " << laser_to_fmu_.transform.translation.x << " " << laser_to_fmu_.transform.translation.y << " " << laser_to_fmu_.transform.translation.z << std::endl;
 
+    double x_laser = laser_to_fmu_.transform.translation.z;
+    double z_laser = laser_to_fmu_.transform.translation.x;
+
     double altitude_tilted_map = final_range +
-                                 fabs(laser_to_fmu_.transform.translation.z) +                     // z offset between laser and fmu
-                                 fabs(laser_to_fmu_.transform.translation.x) * std::tan(pitch);   // distance from the ground due to pitch
-    double altitude_map = altitude_tilted_map * std::tan(roll) * std::tan(pitch);
+                                 fabs(z_laser) +                     // z offset between laser and fmu
+                                 fabs(x_laser) * std::tan(pitch);    // distance from the ground due to pitch
+    double altitude_map = altitude_tilted_map * std::cos(roll) * std::cos(pitch);
     double altitude_odom = altitude_map - fabs(map_to_odom_.transform.translation.z);
 
     // std::cout << "altitude_tilted_map: " << altitude_tilted_map << std::endl;
