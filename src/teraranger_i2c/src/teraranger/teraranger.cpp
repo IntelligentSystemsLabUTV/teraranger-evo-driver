@@ -50,6 +50,9 @@ TerarangerNode::TerarangerNode(const rclcpp::NodeOptions &node_options)
   // Initialize topic publishers
   init_publishers();
 
+  // Initialize topic subscribers
+  init_subscribers();
+
   // Initialize TF listener
   init_tf_listeners();
 
