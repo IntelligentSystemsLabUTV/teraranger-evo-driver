@@ -38,18 +38,15 @@
 #include <limits>
 #include <mutex>
 
-#include <dua_interfaces/msg/euler_pose_stamped.hpp>
 #include <dua_node/dua_node.hpp>
 #include <dua_qos/dua_qos.hpp>
 
 #include <eigen3/Eigen/Geometry>
 #include <eigen3/unsupported/Eigen/EulerAngles>
 
-#include <pose_kit/pose.hpp>
-#include <pose_kit/kinematic_pose.hpp>
-
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 #include <sensor_msgs/msg/range.hpp>
 
 #include <tf2/convert.h>
@@ -57,8 +54,8 @@
 #include <tf2_ros/transform_listener.h>
 #include <tf2_ros/buffer.h>
 
-using namespace dua_interfaces::msg;
 using namespace geometry_msgs::msg;
+using namespace nav_msgs::msg;
 using namespace rcl_interfaces::msg;
 using namespace sensor_msgs::msg;
 using namespace std::chrono;
@@ -133,13 +130,13 @@ class TerarangerNode : public DUANode::NodeBase
     rclcpp::Publisher<PoseWithCovarianceStamped>::SharedPtr altitude_pub_;
 
     /* Topic subscribers */
-    rclcpp::Subscription<EulerPoseStamped>::SharedPtr pose_sub_;
+    rclcpp::Subscription<Odometry>::SharedPtr pose_sub_;
 
     /* Callback groups */
     rclcpp::CallbackGroup::SharedPtr pose_clbk_group_;
 
     /* Callback functions */
-    void pose_clbk(const EulerPoseStamped::ConstSharedPtr msg);
+    void pose_clbk(const Odometry::ConstSharedPtr msg);
 
     /* Parameters */
     std::string altitude_topic;
@@ -169,15 +166,13 @@ class TerarangerNode : public DUANode::NodeBase
     int fd;
     uint8_t buffer[BUFFER_SIZE];
 
-    PoseKit::Pose curr_pose;
-
     Range range_msg;
     double field_of_view = 0.0349066;
     double max_range = 15.0;
     double min_range = 0.5;
     std::array<double, 36> cov_vec;
 
-    EulerPoseStamped drone_pose{};
+    Odometry drone_pose{};
 
     /* TF */
     std::string map_frame, odom_frame, laser_frame, fmu_frame;

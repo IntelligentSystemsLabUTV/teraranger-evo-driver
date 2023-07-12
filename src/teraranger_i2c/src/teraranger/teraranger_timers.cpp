@@ -124,19 +124,21 @@ void TerarangerNode::laser_timer_callback()
       range_pub_->publish(range_msg);
     }
 
-    EulerPoseStamped last_drone_pose{};
+    Odometry last_drone_pose{};
     pose_mtx.lock();
     last_drone_pose = drone_pose;
     pose_mtx.unlock();
 
-    double roll = last_drone_pose.roll;
-    double pitch = last_drone_pose.pitch;
+    Eigen::Quaterniond q_drone = Eigen::Quaterniond(last_drone_pose.pose.pose.orientation.w,
+                                                    last_drone_pose.pose.pose.orientation.x,
+                                                    last_drone_pose.pose.pose.orientation.y,
+                                                    last_drone_pose.pose.pose.orientation.z);
+    // roll = rpy[2], pitch = rpy[1], yaw = rpy[0]
+    Eigen::Vector3d rpy = q_drone.toRotationMatrix().eulerAngles(2, 1, 0);
 
-    double z = last_drone_pose.pose.position.z;
-
-    // std::cout << "roll: " << roll << std::endl;
-    // std::cout << "pitch: " << pitch << std::endl;
-    // std::cout << "z: " << z << std::endl;
+    Eigen::Vector3d p_drone = Eigen::Vector3d(last_drone_pose.pose.pose.position.x,
+                                              last_drone_pose.pose.pose.position.y,
+                                              last_drone_pose.pose.pose.position.z);
 
     TransformStamped map_to_odom_{}, laser_to_fmu_{};
     tf_lock_.lock();
@@ -144,21 +146,14 @@ void TerarangerNode::laser_timer_callback()
     map_to_odom_ = map_to_odom;
     tf_lock_.unlock();
 
-    // std::cout << "map_to_odom: " << map_to_odom_.transform.translation.x << " " << map_to_odom_.transform.translation.y << " " << map_to_odom_.transform.translation.z << std::endl;
-    // std::cout << "laser_to_fmu: " << laser_to_fmu_.transform.translation.x << " " << laser_to_fmu_.transform.translation.y << " " << laser_to_fmu_.transform.translation.z << std::endl;
-
     double x_laser = laser_to_fmu_.transform.translation.z;
     double z_laser = laser_to_fmu_.transform.translation.x;
 
     double altitude_tilted_map = final_range +
                                  fabs(z_laser) +                     // z offset between laser and fmu
-                                 fabs(x_laser) * std::tan(pitch);    // distance from the ground due to pitch
-    double altitude_map = altitude_tilted_map * std::cos(roll) * std::cos(pitch);
+                                 fabs(x_laser) * std::tan(rpy[1]);    // distance from the ground due to pitch
+    double altitude_map = altitude_tilted_map * std::cos(rpy[2]) * std::cos(rpy[1]);
     double altitude_odom = altitude_map - fabs(map_to_odom_.transform.translation.z);
-
-    // std::cout << "altitude_tilted_map: " << altitude_tilted_map << std::endl;
-    // std::cout << "altitude_map: " << altitude_map << std::endl;
-    // std::cout << "altitude_odom: " << altitude_odom << std::endl;
 
     PoseWithCovarianceStamped altitude_msg;
 
@@ -169,13 +164,16 @@ void TerarangerNode::laser_timer_callback()
     // Position
     altitude_msg.pose.pose.position.set__z(altitude_odom);
 
+    /////////////////////////////////////////////////
+    // TODO
     // Covariances
-    if (fabs(altitude_odom - z) < delta_max)
+    if (fabs(altitude_odom - p_drone[2]) < delta_max)
       cov_vec[14] = cov_good;
     else
       cov_vec[14] = cov_bad;
 
     altitude_msg.pose.set__covariance(cov_vec);
+    /////////////////////////////////////////////////
 
     altitude_pub_->publish(altitude_msg);
   }

@@ -15,8 +15,8 @@
   <depend>dua_qos</depend>
   <depend>Eigen3</depend>
   <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
   <depend>params_manager</depend>
-  <depend>pose_kit</depend>
   <depend>rclcpp</depend>
   <depend>rclcpp_components</depend>
   <depend>sensor_msgs</depend>
