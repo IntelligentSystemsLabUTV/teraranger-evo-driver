@@ -40,6 +40,7 @@ void TerarangerNode::tf_timer_callback()
 
   // Start listening
   // map -> odom
+  rclcpp::Time tf_time = this->get_clock()->now();
   try {
     map_to_odom_ = tf_buffer->lookupTransform(
       map_frame,
@@ -50,13 +51,18 @@ void TerarangerNode::tf_timer_callback()
     tf_lock_.lock();
     map_to_odom = map_to_odom;
     tf_lock_.unlock();
-  } catch (const tf2::TimeoutException & e) {
-    NOOP;
+  } catch (const tf2::ExtrapolationException & e) {
+    // Just get the latest
+    tf_time = rclcpp::Time{};
   } catch (const tf2::TransformException & e) {
-    RCLCPP_INFO(this->get_logger(), "TF exception: %s", e.what());
+    RCLCPP_ERROR(this->get_logger(),
+      "TerarangerNode::tf_timer_callback: TF exception: %s",
+      e.what());
+    return;
   }
 
   // laser -> fmu
+  rclcpp::Time tf_time = this->get_clock()->now();
   try {
     laser_to_fmu_ = tf_buffer->lookupTransform(
       laser_frame,
@@ -67,10 +73,14 @@ void TerarangerNode::tf_timer_callback()
     tf_lock_.lock();
     laser_to_fmu = laser_to_fmu_;
     tf_lock_.unlock();
-  } catch (const tf2::TimeoutException & e) {
-    NOOP;
+  } catch (const tf2::ExtrapolationException & e) {
+    // Just get the latest
+    tf_time = rclcpp::Time{};
   } catch (const tf2::TransformException & e) {
-    RCLCPP_INFO(this->get_logger(), "TF exception: %s", e.what());
+    RCLCPP_ERROR(this->get_logger(),
+      "TerarangerNode::tf_timer_callback: TF exception: %s",
+      e.what());
+    return;
   }
 }
 
