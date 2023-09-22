@@ -37,10 +37,11 @@ void TerarangerNode::tf_timer_callback()
 {
   TransformStamped map_to_odom_{};
   TransformStamped laser_to_fmu_{};
+  rclcpp::Time tf_time;
 
   // Start listening
   // map -> odom
-  rclcpp::Time tf_time = this->get_clock()->now();
+  tf_time = this->get_clock()->now();
   try {
     map_to_odom_ = tf_buffer->lookupTransform(
       map_frame,
@@ -62,7 +63,7 @@ void TerarangerNode::tf_timer_callback()
   }
 
   // laser -> fmu
-  rclcpp::Time tf_time = this->get_clock()->now();
+  tf_time = this->get_clock()->now();
   try {
     laser_to_fmu_ = tf_buffer->lookupTransform(
       laser_frame,
