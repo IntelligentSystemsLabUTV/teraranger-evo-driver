@@ -15,5 +15,5 @@
     range_max: 3.0
     range_min: 0.1
     timer_frequency: 10
-    topic_atitude: /altitude
+    topic_altitude: /altitude
     topic_range: /range
