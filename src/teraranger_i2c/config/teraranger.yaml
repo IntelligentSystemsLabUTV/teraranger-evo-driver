@@ -10,7 +10,7 @@
     frame_map: map
     frame_odom: stanis/odom
     laser_bias: 0.07
-    port: /dev/i2c-8
+    port: /dev/header-i2c-1
     publish_altitude: false
     publish_range: true
     range_max: 3.0
