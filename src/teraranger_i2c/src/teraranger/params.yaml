@@ -3,14 +3,6 @@ namespace: Teraranger
 node_class_name: TerarangerNode
 
 params:
-  altitude_topic:
-    type: string
-    default_value: /ref
-    description: "Topic name for the altitude message."
-    constraints: "Cannot be changed."
-    read_only: true
-    var_name: altitude_topic
-
   cov_good:
     type: double
     default_value: 0.01
@@ -44,13 +36,45 @@ params:
     read_only: false
     var_name: delta_max
 
-  link_namespace:
+  frame_base:
     type: string
-    default_value: drone/
-    description: "Drone link namespace, including the trailing slash"
+    default_value: base_link
+    description: "Fmu frame name"
     constraints: "Cannot be changed"
     read_only: true
-    var_name: link_namespace
+    var_name: frame_base
+
+  frame_fmu:
+    type: string
+    default_value: fmu_link
+    description: "Fmu frame name"
+    constraints: "Cannot be changed"
+    read_only: true
+    var_name: frame_fmu
+
+  frame_laser:
+    type: string
+    default_value: laser_link
+    description: "Laser frame name"
+    constraints: "Cannot be changed"
+    read_only: true
+    var_name: frame_laser
+
+  frame_map:
+    type: string
+    default_value: map
+    description: "Map frame name"
+    constraints: "Cannot be changed"
+    read_only: true
+    var_name: frame_map
+
+  frame_odom:
+    type: string
+    default_value: odom
+    description: "Odom frame name"
+    constraints: "Cannot be changed"
+    read_only: true
+    var_name: frame_odom
 
   port:
     type: string
@@ -60,29 +84,43 @@ params:
     read_only: true
     var_name: port
 
-  pose_topic:
-    type: string
-    default_value: /stanis/flight_stack/ekf2_pose
-    description: "Topic name for drone pose."
-    constraints: "Cannot be changed."
-    read_only: true
-    var_name: pose_topic
-
   publish_range:
     type: bool
     default_value: true
-    description: "Flag to publish Range or PoseWithCovarianceStamped msg."
+    description: "Flag to publish range data."
     constraints: "Cannot be changed."
     read_only: true
     var_name: publish_range
 
-  range_topic:
-    type: string
-    default_value: /range_topic
-    description: "Topic name for Range msg publication."
+  publish_altitude:
+    type: bool
+    default_value: true
+    description: "Flag to publish altitude data."
     constraints: "Cannot be changed."
     read_only: true
-    var_name: range_topic
+    var_name: publish_altitude
+
+  range_max:
+    type: double
+    default_value: 0.01
+    min_value: 0.0
+    max_value: 10.0
+    step: 0.0
+    description: "Maximum laser range."
+    constraints: "Cannot be changed."
+    read_only: true
+    var_name: range_max
+
+  range_min:
+    type: double
+    default_value: 0.01
+    min_value: 0.0
+    max_value: 10.0
+    step: 0.0
+    description: "Minimum laser range."
+    constraints: "Cannot be changed."
+    read_only: true
+    var_name: range_min
 
   timer_frequency:
     type: integer
@@ -94,3 +132,19 @@ params:
     constraints: "Cannot be changed."
     read_only: true
     var_name: timer_frequency
+
+  topic_altitude:
+    type: string
+    default_value: /ref
+    description: "Topic name for the altitude message."
+    constraints: "Cannot be changed."
+    read_only: true
+    var_name: topic_altitude
+
+  topic_range:
+    type: string
+    default_value: /range_topic
+    description: "Topic name for Range msg publication."
+    constraints: "Cannot be changed."
+    read_only: true
+    var_name: topic_range

@@ -1,12 +1,19 @@
 /teraranger:
   ros__parameters:
-    altitude_topic: /altitude
     cov_bad: 10.0
     cov_good: 0.001
     delta_max: 0.3
-    link_namespace: stanis/
+    field_of_view: 0.0349066
+    frame_base: stanis/base_link
+    frame_fmu: stanis/fmu_link
+    frame_laser: stanis/laser_link
+    frame_map: map
+    frame_odom: stanis/odom
     port: /dev/i2c-8
-    pose_topic: /stanis/flight_stack/flight_control/ekf2_pose
+    publish_altitude: false
     publish_range: true
-    range_topic: /range
+    range_max: 3.0
+    range_min: 0.1
     timer_frequency: 10
+    topic_atitude: /altitude
+    topic_range: /range

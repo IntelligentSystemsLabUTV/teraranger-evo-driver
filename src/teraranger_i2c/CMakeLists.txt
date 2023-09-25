@@ -31,6 +31,7 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(tf2 REQUIRED)
+find_package(tf2_eigen REQUIRED)
 find_package(tf2_ros REQUIRED)
 
 # Generate parameters source code
@@ -64,6 +65,7 @@ ament_target_dependencies(
   rclcpp_components
   sensor_msgs
   tf2
+  tf2_eigen
   tf2_ros)
 rclcpp_components_register_nodes(teraranger "Teraranger::TerarangerNode")
 

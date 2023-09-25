@@ -37,7 +37,7 @@ using namespace DUAAppManagement;
 
 int main(int argc, char ** argv)
 {
-  ROS2AppManager<rclcpp::executors::MultiThreadedExecutor,
+  ROS2AppManager<rclcpp::executors::SingleThreadedExecutor,
     Teraranger::TerarangerNode> app_manager(
     argc,
     argv,

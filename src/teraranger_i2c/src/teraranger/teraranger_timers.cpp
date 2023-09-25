@@ -31,61 +31,6 @@ namespace Teraranger
 {
 
 /**
- * @brief Updates tf2 transforms.
- */
-void TerarangerNode::tf_timer_callback()
-{
-  TransformStamped map_to_odom_{};
-  TransformStamped laser_to_fmu_{};
-  rclcpp::Time tf_time;
-
-  // Start listening
-  // map -> odom
-  tf_time = this->get_clock()->now();
-  try {
-    map_to_odom_ = tf_buffer->lookupTransform(
-      map_frame,
-      odom_frame,
-      tf2::TimePointZero,
-      tf2::durationFromSec(1.0));
-
-    tf_lock_.lock();
-    map_to_odom = map_to_odom;
-    tf_lock_.unlock();
-  } catch (const tf2::ExtrapolationException & e) {
-    // Just get the latest
-    tf_time = rclcpp::Time{};
-  } catch (const tf2::TransformException & e) {
-    RCLCPP_ERROR(this->get_logger(),
-      "TerarangerNode::tf_timer_callback: TF exception: %s",
-      e.what());
-    return;
-  }
-
-  // laser -> fmu
-  tf_time = this->get_clock()->now();
-  try {
-    laser_to_fmu_ = tf_buffer->lookupTransform(
-      laser_frame,
-      fmu_frame,
-      tf2::TimePointZero,
-      tf2::durationFromSec(1.0));
-
-    tf_lock_.lock();
-    laser_to_fmu = laser_to_fmu_;
-    tf_lock_.unlock();
-  } catch (const tf2::ExtrapolationException & e) {
-    // Just get the latest
-    tf_time = rclcpp::Time{};
-  } catch (const tf2::TransformException & e) {
-    RCLCPP_ERROR(this->get_logger(),
-      "TerarangerNode::tf_timer_callback: TF exception: %s",
-      e.what());
-    return;
-  }
-}
-
-/**
  * @brief Receives new messages from device, parses it and publishes data on topic
  */
 void TerarangerNode::laser_timer_callback()
@@ -135,58 +80,122 @@ void TerarangerNode::laser_timer_callback()
       range_pub_->publish(range_msg);
     }
 
-    Odometry last_drone_pose{};
-    pose_mtx.lock();
-    last_drone_pose = drone_pose;
-    pose_mtx.unlock();
+    if (publish_altitude)
+    {
+      // Get latest fixed_frame -> base_link transform
+      TransformStamped odom_to_base{};
+      rclcpp::Time tf_time = this->get_clock()->now();
+      while (true) {
+        try {
+          odom_to_base = tf_buffer->lookupTransform(
+            frame_odom,
+            frame_base,
+            tf_time,
+            tf2::durationFromSec(0.1));
+          break;
+        } catch (const tf2::ExtrapolationException & e) {
+          // Just get the latest
+          tf_time = rclcpp::Time{};
+        } catch (const tf2::TransformException & e) {
+          RCLCPP_ERROR(
+            this->get_logger(),
+            "ObstacleDetectionNode::target_array_callback: TF exception: %s",
+            e.what());
+          return;
+        }
+      }
+      Eigen::Isometry3d iso_odom_base = tf2::transformToEigen(odom_to_base).cast<double>();
 
-    Eigen::Quaterniond q_drone = Eigen::Quaterniond(last_drone_pose.pose.pose.orientation.w,
-                                                    last_drone_pose.pose.pose.orientation.x,
-                                                    last_drone_pose.pose.pose.orientation.y,
-                                                    last_drone_pose.pose.pose.orientation.z);
-    // roll = rpy[2], pitch = rpy[1], yaw = rpy[0]
-    Eigen::Vector3d rpy = q_drone.toRotationMatrix().eulerAngles(2, 1, 0);
+      // Get quaternion and rpy angles from fixed_to_base
+      Eigen::Quaterniond q_drone = Eigen::Quaterniond(iso_odom_base.rotation());
 
-    Eigen::Vector3d p_drone = Eigen::Vector3d(last_drone_pose.pose.pose.position.x,
-                                              last_drone_pose.pose.pose.position.y,
-                                              last_drone_pose.pose.pose.position.z);
+      // roll = rpy[2], pitch = rpy[1], yaw = rpy[0]
+      Eigen::Vector3d rpy = q_drone.toRotationMatrix().eulerAngles(2, 1, 0);
 
-    TransformStamped map_to_odom_{}, laser_to_fmu_{};
-    tf_lock_.lock();
-    laser_to_fmu_ = laser_to_fmu;
-    map_to_odom_ = map_to_odom;
-    tf_lock_.unlock();
+      // Get position from fixed_to_base
+      Eigen::Vector3d p_drone = Eigen::Vector3d(iso_odom_base.translation());
 
-    double x_laser = laser_to_fmu_.transform.translation.z;
-    double z_laser = laser_to_fmu_.transform.translation.x;
 
-    double altitude_tilted_map = final_range +
-                                 fabs(z_laser) +                     // z offset between laser and fmu
-                                 fabs(x_laser) * std::tan(rpy[1]);    // distance from the ground due to pitch
-    double altitude_map = altitude_tilted_map * std::cos(rpy[2]) * std::cos(rpy[1]);
-    double altitude_odom = altitude_map - fabs(map_to_odom_.transform.translation.z);
+      // Get latest TFs
+      TransformStamped map_to_odom{}, laser_to_fmu{};
+      // map -> odom
+      tf_time = this->get_clock()->now();
+      try
+      {
+        map_to_odom = tf_buffer->lookupTransform(
+          frame_map,
+          frame_odom,
+          tf2::TimePointZero,
+          tf2::durationFromSec(1.0));
+      }
+      catch (const tf2::ExtrapolationException & e)
+      {
+        // Just get the latest
+        tf_time = rclcpp::Time{};
+      }
+      catch (const tf2::TransformException & e)
+      {
+        RCLCPP_ERROR(this->get_logger(),
+          "TerarangerNode::tf_timer_callback: TF exception: %s",
+          e.what());
+        return;
+      }
 
-    PoseWithCovarianceStamped altitude_msg;
+      // laser -> fmu
+      tf_time = this->get_clock()->now();
+      try
+      {
+        laser_to_fmu = tf_buffer->lookupTransform(
+          frame_laser,
+          frame_fmu,
+          tf2::TimePointZero,
+          tf2::durationFromSec(1.0));
+      }
+      catch (const tf2::ExtrapolationException & e)
+      {
+        // Just get the latest
+        tf_time = rclcpp::Time{};
+      }
+      catch (const tf2::TransformException & e)
+      {
+        RCLCPP_ERROR(this->get_logger(),
+          "TerarangerNode::tf_timer_callback: TF exception: %s",
+          e.what());
+        return;
+      }
 
-    // Header
-    altitude_msg.header.set__stamp(this->get_clock()->now());
-    altitude_msg.header.set__frame_id(odom_frame);
+      // Compute height
+      double x_laser = laser_to_fmu.transform.translation.z;
+      double z_laser = laser_to_fmu.transform.translation.x;
 
-    // Position
-    altitude_msg.pose.pose.position.set__z(altitude_odom);
+      double altitude_tilted_map = final_range +
+                                  fabs(z_laser) +                      // z offset between laser and fmu
+                                  fabs(x_laser) * std::tan(rpy[1]);    // distance from the ground due to pitch
+      double altitude_map = altitude_tilted_map * std::cos(rpy[2]) * std::cos(rpy[1]);
+      double altitude_odom = altitude_map - fabs(map_to_odom.transform.translation.z);
 
-    /////////////////////////////////////////////////
-    // TODO
-    // Covariances
-    if (fabs(altitude_odom - p_drone[2]) < delta_max)
-      cov_vec[14] = cov_good;
-    else
-      cov_vec[14] = cov_bad;
+      PoseWithCovarianceStamped altitude_msg;
 
-    altitude_msg.pose.set__covariance(cov_vec);
-    /////////////////////////////////////////////////
+      // Header
+      altitude_msg.header.set__stamp(this->get_clock()->now());
+      altitude_msg.header.set__frame_id(frame_odom);
 
-    altitude_pub_->publish(altitude_msg);
+      // Position
+      altitude_msg.pose.pose.position.set__z(altitude_odom);
+
+      /////////////////////////////////////////////////
+      // TODO
+      // Covariances
+      if (fabs(altitude_odom - p_drone[2]) < delta_max)
+        cov_vec[14] = cov_good;
+      else
+        cov_vec[14] = cov_bad;
+
+      altitude_msg.pose.set__covariance(cov_vec);
+      /////////////////////////////////////////////////
+
+      altitude_pub_->publish(altitude_msg);
+    }
   }
   else
   {

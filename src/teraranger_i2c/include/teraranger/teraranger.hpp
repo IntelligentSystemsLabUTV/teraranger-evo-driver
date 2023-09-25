@@ -50,6 +50,7 @@
 #include <sensor_msgs/msg/range.hpp>
 
 #include <tf2/convert.h>
+#include <tf2_eigen/tf2_eigen.hpp>
 #include <tf2/exceptions.h>
 #include <tf2_ros/transform_listener.h>
 #include <tf2_ros/buffer.h>
@@ -102,7 +103,6 @@ class TerarangerNode : public DUANode::NodeBase
 
   private:
     /* Node initialization routines */
-    void init_cgroups();
     void init_i2c();
     void init_parameters();
     void init_publishers();
@@ -110,18 +110,11 @@ class TerarangerNode : public DUANode::NodeBase
     void init_tf_listeners();
     void init_timers();
 
-    /* Timers callback groups */
-    rclcpp::CallbackGroup::SharedPtr laser_timer_cgroup;
-    rclcpp::CallbackGroup::SharedPtr tf_timer_cgroup;
-
     /* Timers */
     rclcpp::TimerBase::SharedPtr laser_timer;
-    rclcpp::TimerBase::SharedPtr tf_timer;
 
     /* Timer callbacks */
     void laser_timer_callback();
-    void tf_timer_callback();
-
 
     rclcpp::TimerBase::SharedPtr timer_;
 
@@ -135,20 +128,24 @@ class TerarangerNode : public DUANode::NodeBase
     /* Callback groups */
     rclcpp::CallbackGroup::SharedPtr pose_clbk_group_;
 
-    /* Callback functions */
-    void pose_clbk(const Odometry::ConstSharedPtr msg);
-
     /* Parameters */
-    std::string altitude_topic;
     double cov_good;
     double cov_bad;
     double delta_max;
-    std::string link_namespace;
+    double field_of_view;
+    std::string frame_base;
+    std::string frame_fmu;
+    std::string frame_laser;
+    std::string frame_map;
+    std::string frame_odom;
     std::string port;
-    std::string pose_topic;
+    bool publish_altitude;
     bool publish_range;
-    std::string range_topic;
+    double range_max;
+    double range_min;
     int64_t timer_frequency;
+    std::string topic_altitude;
+    std::string topic_range;
 
     /* Utility routines */
     int begin(const char *port);
@@ -160,25 +157,19 @@ class TerarangerNode : public DUANode::NodeBase
 
     /* Synchronization variables */
     std::mutex pose_mtx;
-    std::mutex tf_lock_;
 
     /* Variables */
     int fd;
     uint8_t buffer[BUFFER_SIZE];
 
     Range range_msg;
-    double field_of_view = 0.0349066;
-    double max_range = 15.0;
-    double min_range = 0.5;
     std::array<double, 36> cov_vec;
 
     Odometry drone_pose{};
 
     /* TF */
-    std::string map_frame, odom_frame, laser_frame, fmu_frame;
     std::shared_ptr<tf2_ros::Buffer> tf_buffer;
     std::shared_ptr<tf2_ros::TransformListener> tf_listener;
-    TransformStamped map_to_odom{}, laser_to_fmu{};
 };
 
 } // namespace Teraranger
