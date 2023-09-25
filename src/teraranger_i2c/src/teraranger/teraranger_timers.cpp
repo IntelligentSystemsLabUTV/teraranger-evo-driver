@@ -69,7 +69,7 @@ void TerarangerNode::laser_timer_callback()
         final_range = std::numeric_limits<float>::quiet_NaN();
         break;
       default:
-        final_range = range * VALUE_TO_METER_FACTOR;
+        final_range = range * VALUE_TO_METER_FACTOR + laser_bias;
     }
 
     // Publish range msg if topic is enabled

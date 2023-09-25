@@ -106,7 +106,6 @@ class TerarangerNode : public DUANode::NodeBase
     void init_i2c();
     void init_parameters();
     void init_publishers();
-    void init_subscribers();
     void init_tf_listeners();
     void init_timers();
 
@@ -138,6 +137,7 @@ class TerarangerNode : public DUANode::NodeBase
     std::string frame_laser;
     std::string frame_map;
     std::string frame_odom;
+    double laser_bias;
     std::string port;
     bool publish_altitude;
     bool publish_range;
@@ -151,7 +151,6 @@ class TerarangerNode : public DUANode::NodeBase
     int begin(const char *port);
     uint8_t crc8(uint8_t *p, uint8_t len);
     void end();
-    void get_isometry3d(TransformStamped& tf_msg, Eigen::Isometry3d& iso);
     int sread(unsigned char *buff, ssize_t size);
     int swrite(unsigned char *buff, ssize_t size);
 
