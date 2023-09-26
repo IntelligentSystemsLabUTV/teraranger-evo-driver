@@ -9,7 +9,7 @@
     frame_laser: stanis/laser_link
     frame_map: map
     frame_odom: stanis/odom
-    port: /dev/i2c-8
+    port: /dev/i2c-1
     publish_altitude: false
     publish_range: true
     range_max: 3.0

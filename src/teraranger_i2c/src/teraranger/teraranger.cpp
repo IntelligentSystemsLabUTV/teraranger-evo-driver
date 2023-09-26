@@ -73,12 +73,14 @@ TerarangerNode::~TerarangerNode()
  */
 void TerarangerNode::init_i2c()
 {
-  // Start serial interface and perform handshake
-  if (begin(port.c_str()) < 0)
+  while (true)
   {
-    RCLCPP_FATAL(this->get_logger(), "Cannot open serial port");
-    rclcpp::shutdown();
-    return;
+    // Start serial interface and perform handshake
+    if (begin(port.c_str()) == 0) break;
+    RCLCPP_ERROR(this->get_logger(), "Cannot open I²C port");
+
+    // Wait before trying again
+    std::this_thread::sleep_for(std::chrono::seconds(1));
   }
 
   // Initialize range message

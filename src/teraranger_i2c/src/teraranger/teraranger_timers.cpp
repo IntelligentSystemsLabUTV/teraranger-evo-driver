@@ -35,19 +35,38 @@ namespace Teraranger
  */
 void TerarangerNode::laser_timer_callback()
 {
+  if (reinit)
+  {
+    // Start serial interface and perform handshake
+    if (begin(port.c_str()) == 0) 
+    {
+      reinit = false;
+    }
+    else
+    {
+      RCLCPP_ERROR(this->get_logger(), "Cannot open I²C port");
+
+      // Wait before trying again
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+      return;
+    }
+  }
+
   // Send trigger and receive data
   uint8_t buf[1] = {0x00};
   if (this->swrite(buf, 1) < 0)
   {
-    RCLCPP_ERROR(this->get_logger(), "swrite() failed");
-    rclcpp::shutdown();
+    RCLCPP_ERROR(this->get_logger(), "swrite() failed, trying to reconnect...");
+    end();
+    reinit = true;
     return;
   }
 
   if (this->sread(buffer, BUFFER_SIZE) < 0)
   {
-    RCLCPP_ERROR(this->get_logger(), "sread() failed");
-    rclcpp::shutdown();
+    RCLCPP_ERROR(this->get_logger(), "swrite() failed, trying to reconnect...");
+    end();
+    init_i2c();
     return;
   }
 

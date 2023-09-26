@@ -148,6 +148,7 @@ class TerarangerNode : public DUANode::NodeBase
     /* Variables */
     int fd;
     uint8_t buffer[BUFFER_SIZE];
+    bool reinit = false;
 
     Range range_msg;
     std::array<double, 36> cov_vec;
