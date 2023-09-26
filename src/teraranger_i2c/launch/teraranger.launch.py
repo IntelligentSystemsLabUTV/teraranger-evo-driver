@@ -15,7 +15,7 @@ from launch import LaunchDescription
 from launch_ros.actions import Node
 
 def generate_launch_description():
-    """Builds a LaunchDescription for the Joy2cmdvel app"""
+    """Builds a LaunchDescription for the Teraranger app"""
     ld = LaunchDescription()
 
     # Build config file path
@@ -26,7 +26,7 @@ def generate_launch_description():
         package='teraranger_i2c',
         executable='teraranger_app',
         exec_name='teraranger_app',
-        shell=True,
+        shell=False,
         emulate_tty=True,
         output='both',
         log_cmd=True,

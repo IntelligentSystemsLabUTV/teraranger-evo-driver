@@ -39,12 +39,29 @@ int TerarangerNode::begin(const char *port)
 {
   fd = open(port, O_RDWR);
   if (fd == -1) {
-    perror("Unable to open I²C device");
+    RCLCPP_ERROR(this->get_logger(), "Unable to open I²C device");
     return -1;
   }
 
   if (ioctl(fd, I2C_SLAVE, I2C_ADDR) < 0) {
-    perror("ioctl error");
+    end();
+    RCLCPP_ERROR(this->get_logger(), "ioctl() error");
+    return -1;
+  }
+
+  // Check if communication is working
+  uint8_t buf[1] = {0x00};
+  if (this->swrite(buf, 1) < 0)
+  {
+    end();
+    RCLCPP_ERROR(this->get_logger(), "swrite() check failed");
+    return -1;
+  }
+
+  if (this->sread(buffer, BUFFER_SIZE) < 0)
+  {
+    end();
+    RCLCPP_ERROR(this->get_logger(), "sread() check failed");
     return -1;
   }
 
@@ -78,14 +95,8 @@ int TerarangerNode::sread(unsigned char *buff, ssize_t size)
     if (n < 0)
     {
       int errsv = errno;
-      if (errsv == EINTR)
-      {
-        continue;
-      }
-      else
-      {
-        return -1;
-      }
+      if (errsv == EINTR) continue;
+      else return -1;
     }
     bread += n;
   }
@@ -109,14 +120,8 @@ int TerarangerNode::swrite(unsigned char *buff, ssize_t size)
     if (n < 0)
     {
       int errsv = errno;
-      if (errsv == EINTR)
-      {
-        continue;
-      }
-      else
-      {
-        return -1;
-      }
+      if (errsv == EINTR) continue;
+      else return -1;
     }
     bwritten += n;
   }
