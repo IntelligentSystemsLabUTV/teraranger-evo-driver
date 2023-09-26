@@ -36,7 +36,6 @@
 
 #include <chrono>
 #include <limits>
-#include <mutex>
 
 #include <dua_node/dua_node.hpp>
 #include <dua_qos/dua_qos.hpp>
@@ -46,7 +45,6 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
-#include <nav_msgs/msg/odometry.hpp>
 #include <sensor_msgs/msg/range.hpp>
 
 #include <tf2/convert.h>
@@ -56,7 +54,6 @@
 #include <tf2_ros/buffer.h>
 
 using namespace geometry_msgs::msg;
-using namespace nav_msgs::msg;
 using namespace rcl_interfaces::msg;
 using namespace sensor_msgs::msg;
 using namespace std::chrono;
@@ -106,7 +103,6 @@ class TerarangerNode : public DUANode::NodeBase
     void init_i2c();
     void init_parameters();
     void init_publishers();
-    void init_subscribers();
     void init_tf_listeners();
     void init_timers();
 
@@ -122,15 +118,9 @@ class TerarangerNode : public DUANode::NodeBase
     rclcpp::Publisher<Range>::SharedPtr range_pub_;
     rclcpp::Publisher<PoseWithCovarianceStamped>::SharedPtr altitude_pub_;
 
-    /* Topic subscribers */
-    rclcpp::Subscription<Odometry>::SharedPtr pose_sub_;
-
-    /* Callback groups */
-    rclcpp::CallbackGroup::SharedPtr pose_clbk_group_;
-
     /* Parameters */
-    double cov_good;
     double cov_bad;
+    double cov_good;
     double delta_max;
     double field_of_view;
     std::string frame_base;
@@ -155,17 +145,12 @@ class TerarangerNode : public DUANode::NodeBase
     int sread(unsigned char *buff, ssize_t size);
     int swrite(unsigned char *buff, ssize_t size);
 
-    /* Synchronization variables */
-    std::mutex pose_mtx;
-
     /* Variables */
     int fd;
     uint8_t buffer[BUFFER_SIZE];
 
     Range range_msg;
     std::array<double, 36> cov_vec;
-
-    Odometry drone_pose{};
 
     /* TF */
     std::shared_ptr<tf2_ros::Buffer> tf_buffer;
